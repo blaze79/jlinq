@@ -12,6 +12,7 @@ import org.silentpom.jlinq.function.impl.accumulate.LongSumm;
 import org.silentpom.jlinq.function.impl.accumulate.Maximum;
 import org.silentpom.jlinq.function.impl.accumulate.Minimum;
 import org.silentpom.jlinq.function.impl.selectors.FirstSelector;
+import org.silentpom.jlinq.function.impl.selectors.SecondSelector;
 import org.silentpom.jlinq.function.impl.selectors.TSelector;
 import org.silentpom.jlinq.impl.IteratorUtil;
 
@@ -293,5 +294,29 @@ public class LinqTest extends TestCase {
     public void testContains() {
         assertTrue("contains 5", JLinq.fromT(1L, 2L, 3L).add(JLinq.fromT(4L, 5L, 6L)).reverse().contains(5L));
         assertFalse("not contains 7", JLinq.fromT(1L, 2L, 3L).add(JLinq.fromT(4L, 5L, 6L)).reverse().contains(7L));
+    }
+
+    public void testMap() {
+        Map<Long, Long> map = new HashMap<Long, Long>();
+        for (Long data : dataArray) {
+            map.put(data, data + 5L);
+        }
+
+        Long result = JLinq.from(map).where(new Predicate<IPair<Long, Long>>() {
+            @Override
+            public boolean value(IPair<Long, Long> elem) {
+                return elem.getFirst() == 5L;
+            }
+        }).first().getSecond();
+
+        assertTrue("test map", result == 10L);
+
+        result = JLinq.from(map).where(new Predicate<IPair<Long, Long>>() {
+            @Override
+            public boolean value(IPair<Long, Long> elem) {
+                return elem.getFirst() == 6L;
+            }
+        }).cast(new SecondSelector<Long, Long>()).first();
+        assertTrue("test map", result == 11L);
     }
 }

@@ -1,13 +1,13 @@
 package org.silentpom.jlinq.function.impl.selectors;
 
+import org.silentpom.jlinq.function.Caster;
 import org.silentpom.jlinq.function.KeySelector;
 
 /**
- * Created by IntelliJ IDEA.
- * User: pom
- * Date: 26.07.12
- * Time: 20:30
- * To change this template use File | Settings | File Templates.
+ * ${NAME}
+ *
+ * @author Vladislav Kogut
+ * @version $Id: Exp $
  */
 
 /**
@@ -15,7 +15,7 @@ import org.silentpom.jlinq.function.KeySelector;
  *
  * @param <T> объект селекции
  */
-public class TSelector<T> implements KeySelector<T, T> {
+public class TSelector<T> implements KeySelector<T, T>, Caster<T, T> {
     /**
      * Возвращает сам объект
      *
@@ -25,5 +25,10 @@ public class TSelector<T> implements KeySelector<T, T> {
     @Override
     public T getKey(T x) {
         return x;
+    }
+
+    @Override
+    public T cast(T t) {
+        return t;
     }
 }

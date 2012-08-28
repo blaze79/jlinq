@@ -1,6 +1,7 @@
 package org.silentpom.jlinq.function.impl.selectors;
 
 import org.silentpom.jlinq.data.IPair;
+import org.silentpom.jlinq.function.Caster;
 import org.silentpom.jlinq.function.KeySelector;
 
 /**
@@ -16,7 +17,7 @@ import org.silentpom.jlinq.function.KeySelector;
  * @param <T1> - первый тип в паре
  * @param <T2> - второй тип в паре
  */
-public class SecondSelector<T1, T2> implements KeySelector<IPair<T1, T2>, T2> {
+public class SecondSelector<T1, T2> implements KeySelector<IPair<T1, T2>, T2>, Caster<T2, IPair<T1, T2>> {
     /**
      * Выделяет второй элемент в паре
      *
@@ -26,5 +27,11 @@ public class SecondSelector<T1, T2> implements KeySelector<IPair<T1, T2>, T2> {
     @Override
     public T2 getKey(IPair<T1, T2> x) {
         return x.getSecond();
+    }
+
+
+    @Override
+    public T2 cast(IPair<T1, T2> t) {
+        return getKey(t);
     }
 }
