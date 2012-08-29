@@ -162,7 +162,7 @@ public class LinqRange<T> implements Range<T> {
 
     public LinqRange<IPair<T, List<T>>> join(Range<T> right) {
         TSelector<T> selector = new TSelector<T>();
-        return new LinqRange<IPair<T, List<T>>>(new JoinRange<T, T, T, List<T>>(range, right, selector, selector, new GroupResultFunctor<T, List<T>, T>() {
+        return new LinqRange<IPair<T, List<T>>>(new JoinRange<T, T, T, T, List<T>>(range, right, selector, selector, selector, new GroupResultFunctor<T, List<T>, T>() {
             @Override
             public List<T> processList(T k, List<T> ts) {
                 return ts;
@@ -170,19 +170,40 @@ public class LinqRange<T> implements Range<T> {
         }));
     }
 
-    public <U, Key> LinqRange<IPair<T, List<U>>> join(Range<U> right, KeySelector<? super T, Key> leftSelector, KeySelector<? super U, Key> rightSelector) {
+    public <U, Middle> LinqRange<IPair<T, List<Middle>>> join(Range<U> right, KeySelector<? super U, T> rightSelector, KeySelector<? super U, Middle> middleKeySelector) {
+        TSelector<T> selector = new TSelector<T>();
+        return new LinqRange<IPair<T, List<Middle>>>(new JoinRange<T, T, U, Middle, List<Middle>>(range, right, selector, rightSelector, middleKeySelector,
+                new GroupResultFunctor<Middle, List<Middle>, T>() {
+                    @Override
+                    public List<Middle> processList(T k, List<Middle> middles) {
+                        return middles;
+                    }
+                }));
+    }
 
-        return new LinqRange<IPair<T, List<U>>>(new JoinRange<T, Key, U, List<U>>(range, right, leftSelector, rightSelector, new GroupResultFunctor<U, List<U>, Key>() {
+    public <U, Key, Middle> LinqRange<IPair<T, List<Middle>>> join(Range<U> right, KeySelector<? super T, Key> leftSelector, KeySelector<? super U, Key> rightSelector, KeySelector<? super U, Middle> middleKeySelector) {
+
+        return new LinqRange<IPair<T, List<Middle>>>(new JoinRange<T, Key, U, Middle, List<Middle>>(range, right, leftSelector, rightSelector, middleKeySelector, new GroupResultFunctor<Middle, List<Middle>, Key>() {
             @Override
-            public List<U> processList(Key k, List<U> us) {
+            public List<Middle> processList(Key k, List<Middle> us) {
                 return us;
             }
         }));
     }
 
-    public <U, Key, Result> LinqRange<IPair<T, Result>> join(Range<U> right, KeySelector<? super T, Key> leftSelector, KeySelector<? super U, Key> rightSelector, GroupResultFunctor<U, Result, Key> functor) {
+    public <U, Key, Result> LinqRange<IPair<T, Result>> join(Range<U> right, KeySelector<? super T, Key> leftSelector,
+                                                             KeySelector<? super U, Key> rightSelector,
+                                                             GroupResultFunctor<U, Result, Key> functor) {
 
-        return new LinqRange<IPair<T, Result>>(new JoinRange<T, Key, U, Result>(range, right, leftSelector, rightSelector, functor));
+        return new LinqRange<IPair<T, Result>>(new JoinRange<T, Key, U, U, Result>(range, right, leftSelector, rightSelector, new TSelector<U>(), functor));
+    }
+
+    public <U, Key, Middle, Result> LinqRange<IPair<T, Result>> join(Range<U> right, KeySelector<? super T, Key> leftSelector,
+                                                                     KeySelector<? super U, Key> rightSelector,
+                                                                     KeySelector<? super U, Middle> middleKeySelector,
+                                                                     GroupResultFunctor<Middle, Result, Key> functor) {
+
+        return new LinqRange<IPair<T, Result>>(new JoinRange<T, Key, U, Middle, Result>(range, right, leftSelector, rightSelector, middleKeySelector, functor));
     }
 
     public <Result> Result accumulate(Accumulate<T, Result> accumulate, Result start) {

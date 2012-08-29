@@ -319,4 +319,21 @@ public class LinqTest extends TestCase {
         }).cast(new SecondSelector<Long, Long>()).first();
         assertTrue("test map", result == 11L);
     }
+
+    public void testMapAndJoin() {
+        Map<Long, Long> map = new HashMap<Long, Long>();
+        for (Long data : dataArray) {
+            map.put(data, data + 5L);
+        }
+
+        List<Long> list = JLinq.from(evenList).join(JLinq.from(map), new FirstSelector<Long, Long>(), new SecondSelector<Long, Long>())
+                .where(new Predicate<IPair<Long, List<Long>>>() {
+                    @Override
+                    public boolean value(IPair<Long, List<Long>> elem) {
+                        return elem.getFirst() == 4;
+                    }
+                }).first().getSecond();
+
+        assertTrue("map and join test", IteratorUtil.equalsLists(list, Arrays.asList(9L)));
+    }
 }

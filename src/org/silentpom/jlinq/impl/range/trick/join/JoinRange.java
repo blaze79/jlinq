@@ -27,42 +27,46 @@ import java.util.List;
  * @param <U>      right source type
  * @param <Result> result type
  */
-public class JoinRange<T, Key, U, Result> extends ProxyRangeImpl<IPair<T, Result>, T> {
+public class JoinRange<T, Key, U, Middle, Result> extends ProxyRangeImpl<IPair<T, Result>, T> {
 
     protected ArrayList<IPair<T, Result>> list;
     protected Range<U> right;
-    protected GroupResultFunctor<U, Result, Key> resultFunctor;
+    protected GroupResultFunctor<Middle, Result, Key> resultFunctor;
 
     protected KeySelector<? super T, Key> leftSelector;
+    protected KeySelector<? super U, Middle> middleKeySelector;
     protected KeySelector<? super U, Key> rightSelector;
 
-    public JoinRange(Range<T> left, Range<U> right, KeySelector<? super T, Key> leftSelector, KeySelector<? super U, Key> rightSelector, GroupResultFunctor<U, Result, Key> resultFunctor) {
+    public JoinRange(Range<T> left, Range<U> right, KeySelector<? super T, Key> leftSelector,
+                     KeySelector<? super U, Key> rightSelector, KeySelector<? super U, Middle> middleKeySelector,
+                     GroupResultFunctor<Middle, Result, Key> resultFunctor) {
         super(left);
         this.right = right;
         this.leftSelector = leftSelector;
+        this.middleKeySelector = middleKeySelector;
         this.rightSelector = rightSelector;
         this.resultFunctor = resultFunctor;
     }
 
     protected ArrayList<IPair<T, Result>> buildList() {
         ArrayList<IPair<T, Result>> list = new ArrayList<IPair<T, Result>>();
-        HashMap<Key, List<U>> mapper = new HashMap<Key, List<U>>();
+        HashMap<Key, List<Middle>> mapper = new HashMap<Key, List<Middle>>();
 
         for (U u : right) {
             Key key = rightSelector.getKey(u);
-            List<U> uList = mapper.get(key);
+            List<Middle> uList = mapper.get(key);
             if (uList == null) {
-                uList = new ArrayList<U>();
+                uList = new ArrayList<Middle>();
                 mapper.put(key, uList);
             }
-            uList.add(u);
+            uList.add(middleKeySelector.getKey(u));
         }
 
         for (T t : range) {
             Key key = leftSelector.getKey(t);
-            List<U> uList = mapper.get(key);
+            List<Middle> uList = mapper.get(key);
             if (uList == null) {
-                uList = new ArrayList<U>();
+                uList = new ArrayList<Middle>();
             }
 
             Result result = resultFunctor.processList(key, uList);
