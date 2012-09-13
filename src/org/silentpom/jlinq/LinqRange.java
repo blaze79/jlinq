@@ -170,6 +170,18 @@ public class LinqRange<T> implements Range<T> {
         }));
     }
 
+    public <U> LinqRange<IPair<T, List<U>>> join(Range<U> right, KeySelector<? super U, T> rightSelector) {
+        TSelector<T> selectorT = new TSelector<T>();
+        TSelector<U> selectorU = new TSelector<U>();
+        return new LinqRange<IPair<T, List<U>>>(new JoinRange<T, T, U, U, List<U>>(range, right, selectorT, rightSelector, selectorU,
+                new GroupResultFunctor<U, List<U>, T>() {
+                    @Override
+                    public List<U> processList(T k, List<U> middles) {
+                        return middles;
+                    }
+                }));
+    }
+
     public <U, Middle> LinqRange<IPair<T, List<Middle>>> join(Range<U> right, KeySelector<? super U, T> rightSelector, KeySelector<? super U, Middle> middleKeySelector) {
         TSelector<T> selector = new TSelector<T>();
         return new LinqRange<IPair<T, List<Middle>>>(new JoinRange<T, T, U, Middle, List<Middle>>(range, right, selector, rightSelector, middleKeySelector,
