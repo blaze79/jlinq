@@ -11,6 +11,7 @@ import org.silentpom.jlinq.function.group.GroupResultProcessor;
 import org.silentpom.jlinq.function.impl.NotPredicate;
 import org.silentpom.jlinq.function.impl.SetPredicate;
 import org.silentpom.jlinq.function.impl.selectors.TSelector;
+import org.silentpom.jlinq.impl.ConvertedRange;
 import org.silentpom.jlinq.impl.IteratorUtil;
 import org.silentpom.jlinq.impl.range.trick.CastRange;
 import org.silentpom.jlinq.impl.range.trick.ConcatRange;
@@ -57,6 +58,10 @@ public class LinqRange<T> implements Range<T> {
 
     public <New> LinqRange<New> cast(Caster<New, T> caster) {
         return new LinqRange<New>(new CastRange<New, T>(range, caster));
+    }
+
+    public <New> ConvertedRange<T, New> to(Class<New> clazz) { // java generic tric
+        return new ConvertedRange<T, New>(range);
     }
 
     @SuppressWarnings("unchecked")

@@ -11,6 +11,7 @@ import org.silentpom.jlinq.function.group.GroupResultProcessor;
 import org.silentpom.jlinq.function.impl.accumulate.LongSumm;
 import org.silentpom.jlinq.function.impl.accumulate.Maximum;
 import org.silentpom.jlinq.function.impl.accumulate.Minimum;
+import org.silentpom.jlinq.function.impl.accumulate.StringAccumulate;
 import org.silentpom.jlinq.function.impl.selectors.FirstSelector;
 import org.silentpom.jlinq.function.impl.selectors.SecondSelector;
 import org.silentpom.jlinq.function.impl.selectors.TSelector;
@@ -335,5 +336,19 @@ public class LinqTest extends TestCase {
                 }).first().getSecond();
 
         assertTrue("map and join test", IteratorUtil.equalsLists(list, Arrays.asList(9L)));
+    }
+
+    public void testConvertTo() {
+
+        String result = JLinq.from(dataArray).to(String.class).cast(new Caster<String, Long>() {
+            @Override
+            public String cast(Long t) {
+                return t.toString();
+            }
+        }).accumulate(new StringAccumulate(), new StringBuilder()).toString();
+
+        assertEquals(result, "1234567");
+
+
     }
 }
