@@ -2,10 +2,7 @@ package org.silentpom.jlinq;
 
 import org.silentpom.jlinq.data.GroupedData;
 import org.silentpom.jlinq.data.IPair;
-import org.silentpom.jlinq.function.Accumulate;
-import org.silentpom.jlinq.function.Caster;
-import org.silentpom.jlinq.function.KeySelector;
-import org.silentpom.jlinq.function.Predicate;
+import org.silentpom.jlinq.function.*;
 import org.silentpom.jlinq.function.group.GroupResultFunctor;
 import org.silentpom.jlinq.function.group.GroupResultProcessor;
 import org.silentpom.jlinq.function.impl.NotPredicate;
@@ -54,6 +51,10 @@ public class LinqRange<T> implements Range<T> {
         } else {
             return new LinqRange<T>(new ReverseRange<T>(range));
         }
+    }
+
+    public LinqRange<T> transform(Transformer<T> transformer) {
+        return new LinqRange<T>(new CastRange<T, T>(range, transformer));
     }
 
     public <New> LinqRange<New> cast(Caster<New, T> caster) {
